@@ -1,31 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    style="@style/MM.Screen"
     tools:context=".ui.MenuFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/text_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name" />
+    <TextView
+        android:id="@+id/text_title"
+        style="@style/MM.Text.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/content_margin"
+        android:layout_marginTop="48dp"
+        android:text="@string/menu_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/btn_play"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Play" />
+    <View
+        android:id="@+id/view_cursor"
+        android:layout_width="24dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="@dimen/item_padding"
+        android:layout_marginTop="16dp"
+        android:background="@color/accent"
+        app:layout_constraintStart_toStartOf="@id/text_title"
+        app:layout_constraintTop_toBottomOf="@id/text_title" />
 
-        <Button
-            android:id="@+id/btn_stats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stats" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/text_tagline"
+        style="@style/MM.Text.Dim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/menu_tagline"
+        app:layout_constraintStart_toStartOf="@id/text_title"
+        app:layout_constraintTop_toBottomOf="@id/view_cursor" />
 
-</FrameLayout>
+    <Button
+        android:id="@+id/btn_play"
+        style="@style/MM.Item.Primary"
+        android:text="@string/action_play"
+        app:layout_constraintBottom_toTopOf="@id/btn_stats"
+        app:layout_constraintStart_toStartOf="@id/text_title" />
+
+    <Button
+        android:id="@+id/btn_stats"
+        style="@style/MM.Item"
+        android:layout_marginBottom="32dp"
+        android:text="@string/action_stats"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/text_title" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

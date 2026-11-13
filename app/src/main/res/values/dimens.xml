@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="frame_inset">16dp</dimen>
+    <dimen name="frame_stroke">3dp</dimen>
+    <dimen name="content_margin">16dp</dimen>
+    <dimen name="item_padding">8dp</dimen>
+</resources>

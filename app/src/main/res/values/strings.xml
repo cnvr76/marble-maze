@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Marble Maze</string>
+
+    <!-- Menu -->
+    <string name="menu_title">MARBLE\nMAZE</string>
+    <string name="menu_tagline">TILT TO ROLL.\nDO NOT FALL.</string>
+    <string name="action_play">> PLAY</string>
+    <string name="action_stats">STATS</string>
+
+    <!-- Game -->
+    <string name="game_depth_placeholder">DEPTH 00</string>
+    <string name="action_pause">II</string>
+    <string name="game_placeholder">MAZE\nLOADING</string>
+    <string name="action_debug_fall">[DEBUG] FALL</string>
+
+    <!-- Game over -->
+    <string name="over_label">GAME OVER</string>
+    <string name="over_headline">YOU\nFELL.</string>
+    <string name="label_depth">DEPTH</string>
+    <string name="label_best">BEST</string>
+    <string name="value_placeholder">00</string>
+    <string name="action_retry">> RETRY</string>
+    <string name="action_menu">MENU</string>
+
+    <!-- Stats -->
+    <string name="stats_label">STATS</string>
+    <string name="stats_headline">DAILY\nBEST</string>
+    <string name="col_date">DATE</string>
+    <string name="col_best">BEST</string>
+    <string name="col_runs">RUNS</string>
+    <string name="stats_empty">NO RUNS YET.\nGO FALL SOMEWHERE.</string>
+    <string name="action_back">&lt; BACK</string>
 </resources>

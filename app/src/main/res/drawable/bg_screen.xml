@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg" />
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/frame_inset"
+        android:left="@dimen/frame_inset"
+        android:right="@dimen/frame_inset"
+        android:top="@dimen/frame_inset">
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="@dimen/frame_stroke"
+                android:color="@color/fg" />
+        </shape>
+    </item>
+</layer-list>

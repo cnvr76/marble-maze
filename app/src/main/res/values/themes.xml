@@ -1,9 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.MarbleMaze" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+    <!-- Одна тёмная тема для всего приложения -->
+    <style name="Base.Theme.MarbleMaze" parent="Theme.Material3.Dark.NoActionBar" />
 
-    <style name="Theme.MarbleMaze" parent="Base.Theme.MarbleMaze" />
+    <style name="Theme.MarbleMaze" parent="Base.Theme.MarbleMaze">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="colorSurface">@color/bg</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/bg</item>
+        <item name="android:textColorPrimary">@color/fg</item>
+        <item name="android:fontFamily">@font/app_font</item>
+        <item name="fontFamily">@font/app_font</item>
+    </style>
 </resources>
