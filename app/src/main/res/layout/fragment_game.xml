@@ -5,6 +5,16 @@
     style="@style/MM.Screen"
     tools:context=".ui.GameFragment">
 
+    <sk.uniza.feit.marblemaze.ui.GameView
+        android:id="@+id/game_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/frame_stroke"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/text_depth"
         style="@style/MM.Text.BorderLabel"
@@ -19,27 +29,16 @@
     <Button
         android:id="@+id/btn_pause"
         style="@style/MM.Item.Icon"
-        android:layout_width="38dp"
-        android:layout_height="23dp"
+        android:layout_width="48dp"
+        android:layout_height="38dp"
         android:layout_marginEnd="16dp"
         android:text="@string/action_pause"
         android:textAlignment="center"
         android:textAllCaps="false"
         app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/text_placeholder"
-        style="@style/MM.Text.Dim"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/game_placeholder"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.473" />
 
     <Button
         android:id="@+id/btn_debug_lose"
