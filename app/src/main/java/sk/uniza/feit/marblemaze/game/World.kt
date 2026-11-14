@@ -1,7 +1,5 @@
 package sk.uniza.feit.marblemaze.game
 
-import android.util.Log
-
 class World(val width: Int, val height: Int) {
     private val radius = 0.3f
     val ball = Ball(Vector2(radius * 1.5f, height - radius * 1.5f), radius)
@@ -30,6 +28,6 @@ class World(val width: Int, val height: Int) {
     }
 
     companion object {
-        const val TILT_ACCELERATION = 20f
+        const val TILT_ACCELERATION = 40f
     }
 }

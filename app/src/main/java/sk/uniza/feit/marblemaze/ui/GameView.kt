@@ -21,7 +21,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     private val frameCanvas = Canvas(frame)
     private val placement = RectF()
     @Volatile private var running = false
-    @Volatile private var tilt = Vector2(0f, 1f)
+    @Volatile var tilt = Vector2(0f, 0f)
     private var thread: Thread? = null
 
     private val paintBall = Paint().apply {
@@ -84,7 +84,6 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
             ball.radius * PPC,
             paintBall
         )
-//        frameCanvas.drawColor(Color.GREEN)
         canvas.drawColor(bgColor)
         canvas.drawBitmap(frame, null, placement, paintPixel)
     }
