@@ -11,7 +11,7 @@ class MazeGeneratorTest {
     fun printMaze() {
         val config = MazeConfig(rows = 6, cols = 8)
         MazeGenerator.generate(config, Cell(0, 0))
-        println(ascii(MazeGenerator.grid, config.cols, config.rows))
+//        println(ascii(MazeGenerator.grid, config.cols, config.rows))
     }
 
     // sides = [top, right, bottom, left]

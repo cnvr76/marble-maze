@@ -10,7 +10,7 @@ class Ball(var position: Vector2, val radius: Float) {
     }
 
     companion object {
-        const val FRICTION = 1.5f
+        const val FRICTION = 3f
         const val BOUNCE = 0.5f
     }
 }

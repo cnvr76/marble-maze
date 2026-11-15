@@ -16,6 +16,9 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private lateinit var gameView: GameView
+    private var calibrated = false
+    private var neutralX = 0f
+    private var neutralY = 0f
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,6 +35,7 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        calibrated = false
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
     }
 
@@ -42,9 +46,21 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
-        val values = event.values; val g = SensorManager.GRAVITY_EARTH
-        gameView.tilt = Vector2(-values[0] / g, values[1] / g)
+        val x = event.values[0]; val y = event.values[1]
+        val g = SensorManager.GRAVITY_EARTH
+        if (!calibrated) {
+            neutralX = x
+            neutralY = y
+            calibrated = true
+        }
+        val tx = (-(x - neutralX) / g * SENSITIVITY).coerceIn(-1f, 1f)
+        val ty = ((y - neutralY) / g * SENSITIVITY).coerceIn(-1f, 1f)
+        gameView.tilt = Vector2(tx, ty)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    companion object {
+        const val SENSITIVITY = 2.5f
+    }
 }
