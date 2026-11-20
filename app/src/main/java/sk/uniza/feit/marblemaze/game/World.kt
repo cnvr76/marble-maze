@@ -34,7 +34,7 @@ class World(val level: Level) {
     }
 
     private fun wallCollisions() {
-        for ((left, right, top, bottom) in level.walls) {
+        for ((_, left, right, top, bottom) in level.walls) {
             val bpos = ball.position
 
             val closestX = bpos.x.coerceIn(left, right)

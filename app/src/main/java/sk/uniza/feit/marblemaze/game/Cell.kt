@@ -5,6 +5,8 @@ data class Cell(val x: Int, val y: Int) {
     //                                [top, right, bottom, left]
     val sides: Array<Boolean> = arrayOf(true, true, true, true)
     var visited: Boolean = false
+    val center: Vector2
+        get() = Vector2(x + 0.5f, y + 0.5f)
 
     fun pickUnvisitedNeighbor(grid: MutableList<Cell>, config: MazeConfig): Cell? {
         return listOfNotNull(

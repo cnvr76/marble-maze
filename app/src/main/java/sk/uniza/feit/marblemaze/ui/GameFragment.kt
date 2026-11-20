@@ -24,12 +24,17 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
+        val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
+
         sensorManager = requireContext().getSystemService(SensorManager::class.java)
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gameView = view.findViewById(R.id.game_view)
 
         btnLose.setOnClickListener {
             findNavController().navigate(R.id.action_gameFragment_to_gameOverFragment)
+        }
+        btnRegen.setOnClickListener {
+
         }
     }
 

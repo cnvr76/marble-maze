@@ -3,6 +3,7 @@ package sk.uniza.feit.marblemaze.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -19,6 +20,7 @@ import sk.uniza.feit.marblemaze.game.MazeGenerator
 
 class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback {
     private lateinit var world: World
+    private lateinit var config: MazeConfig
     private lateinit var frame: Bitmap
     private lateinit var frameCanvas: Canvas
     private val placement = RectF()
@@ -31,6 +33,9 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     }
     private val wallPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.fg); isAntiAlias = false
+    }
+    private val holePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.fg_dim); isAntiAlias = false
     }
     private val bgColor = ContextCompat.getColor(context, R.color.bg)
     private val paintPixel = Paint().apply { isFilterBitmap = false; isAntiAlias = false }
@@ -49,8 +54,9 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     ) {
         if (!::world.isInitialized) {
             val rows = (COLS * height / width.toFloat()).toInt()
-            val level = MazeGenerator.generate(MazeConfig(rows, COLS, 0.5f),
-                Cell(0, rows - 1))
+
+            config = MazeConfig(rows, COLS, 0.6f, 0.4f)
+            val level = MazeGenerator.generate(config, Cell(0, rows - 1))
             world = World(level)
             frame = createBitmap(COLS * BIT, rows * BIT)
             frameCanvas = Canvas(frame)
@@ -59,7 +65,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
 
         if (thread == null) {
             running = true
-            thread = Thread {loop()}.also { it.start() }
+            thread = Thread { loop() }.also { it.start() }
         }
     }
 
@@ -87,8 +93,13 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     private fun render(canvas: Canvas) {
         frameCanvas.drawColor(bgColor)
 
-        for ((wleft, wright, wtop, wbottom) in world.level.walls) {
+        for ((_, wleft, wright, wtop, wbottom) in world.level.walls) {
             frameCanvas.drawRect(wleft * BIT, wtop * BIT, wright * BIT, wbottom * BIT, wallPaint)
+            // frameCanvas.drawCircle(wleft * BIT, wtop * BIT, 1f, Paint().apply { color = Color.GREEN; isAntiAlias = false })
+        }
+
+        for (hole in world.level.holes) {
+            frameCanvas.drawCircle(hole.x * BIT, hole.y * BIT, hole.radius * BIT, holePaint)
         }
 
         val ball = world.ball

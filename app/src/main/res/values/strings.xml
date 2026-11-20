@@ -12,6 +12,7 @@
     <string name="action_pause">II</string>
     <string name="game_placeholder">MAZE\nLOADING</string>
     <string name="action_debug_fall">[DEBUG] FALL</string>
+    <string name="action_debug_regenerate">[DEBUG] REGEN</string>
 
     <!-- Game over -->
     <string name="over_label">GAME OVER</string>

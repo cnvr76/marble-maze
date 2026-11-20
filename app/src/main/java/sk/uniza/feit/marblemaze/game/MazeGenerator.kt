@@ -16,32 +16,44 @@ object MazeGenerator {
         val k = Wall.THICKNESS / 2
         for (cell in grid) {
             // Right
-            if (cell.sides[1] && cell.x < config.cols - 1)
-                walls.add(Wall(cell.x + 1f - k, cell.x + 1f + k, cell.y - k, cell.y + 1f + k))
+            if (cell.sides[Cell.SIDE.RIGHT.ordinal] && cell.x < config.cols - 1)
+                walls.add(Wall(cell, cell.x + 1f - k, cell.x + 1f + k, cell.y - k, cell.y + 1f + k))
 
             // Bottom
-            if (cell.sides[2] && cell.y < config.rows - 1)
-                walls.add(Wall(cell.x - k, cell.x + 1f + k, cell.y + 1f - k, cell.y + 1f + k))
+            if (cell.sides[Cell.SIDE.BOTTOM.ordinal] && cell.y < config.rows - 1)
+                walls.add(Wall(cell, cell.x - k, cell.x + 1f + k, cell.y + 1f - k, cell.y + 1f + k))
         }
         return walls
     }
 
-    private fun removeRandomWalls(grid: MutableList<Cell>, config: MazeConfig, random: Random = Random): MutableList<Cell> {
+    private fun removeRandomWalls(grid: MutableList<Cell>, config: MazeConfig, random: Random = Random) {
         fun tryRemoveWall(cell: Cell, side: Cell.SIDE) {
-            val other = cell.getNeighbor(side, grid, config)
-            if (random.nextFloat() < config.openness) {
-                if (other != null) cell.removeWalls(other)
-            }
+            val other = cell.getNeighbor(side, grid, config) ?: return
+            if (random.nextFloat() < config.openness)
+                cell.removeWalls(other)
         }
 
-        for (y in 0 until config.rows) {
-            for (x in 0 until config.cols) {
-                val cell = grid[x + y * config.cols]
-                tryRemoveWall(cell, Cell.SIDE.BOTTOM)
-                tryRemoveWall(cell, Cell.SIDE.RIGHT)
+        for (cell in grid) {
+            tryRemoveWall(cell, Cell.SIDE.BOTTOM)
+            tryRemoveWall(cell, Cell.SIDE.RIGHT)
+        }
+    }
+
+    private fun createHoles(walls: MutableList<Wall>, start: Cell, config: MazeConfig, random: Random = Random): MutableList<Hole> {
+        val holes = mutableListOf<Hole>()
+        val iterator = walls.iterator()
+        while (iterator.hasNext()) {
+            val wall = iterator.next()
+
+            val nearStart = start.center.dist(wall.center) < Hole.SAFE_DISTANCE
+            val nearOtherHole = holes.any { hole -> hole.center.dist(wall.center) < Hole.MIN_SELF_DISTANCE }
+
+            if (random.nextFloat() < config.holeness && !nearStart && !nearOtherHole) {
+                holes.add(Hole(wall.center.x, wall.center.y, 0.3f))
+                iterator.remove()
             }
         }
-        return grid
+        return holes
     }
 
     fun generate(config: MazeConfig, start: Cell): Level {
@@ -62,9 +74,10 @@ object MazeGenerator {
             }
         }
 
-        val updatedGrid = removeRandomWalls(grid, config)
-        val walls = createWalls(updatedGrid, config)
+        removeRandomWalls(grid, config)
+        val walls = createWalls(grid, config)
+        val holes = createHoles(walls, start, config)
 
-        return Level(config, grid, walls, start)
+        return Level(config, grid, walls, holes, start)
     }
 }
