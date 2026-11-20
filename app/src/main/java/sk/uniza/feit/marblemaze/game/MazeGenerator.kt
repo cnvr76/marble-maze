@@ -26,7 +26,25 @@ object MazeGenerator {
         return walls
     }
 
-    fun generate(config: MazeConfig, start: Cell, random: Random = Random): Level {
+    private fun removeRandomWalls(grid: MutableList<Cell>, config: MazeConfig, random: Random = Random): MutableList<Cell> {
+        fun tryRemoveWall(cell: Cell, side: Cell.SIDE) {
+            val other = cell.getNeighbor(side, grid, config)
+            if (random.nextFloat() < config.openness) {
+                if (other != null) cell.removeWalls(other)
+            }
+        }
+
+        for (y in 0 until config.rows) {
+            for (x in 0 until config.cols) {
+                val cell = grid[x + y * config.cols]
+                tryRemoveWall(cell, Cell.SIDE.BOTTOM)
+                tryRemoveWall(cell, Cell.SIDE.RIGHT)
+            }
+        }
+        return grid
+    }
+
+    fun generate(config: MazeConfig, start: Cell): Level {
         val grid = setup(config)
         var current: Cell? = grid[start.x + start.y * config.cols]
         val stack = java.util.ArrayDeque<Cell>()
@@ -44,7 +62,8 @@ object MazeGenerator {
             }
         }
 
-        val walls = createWalls(grid, config)
+        val updatedGrid = removeRandomWalls(grid, config)
+        val walls = createWalls(updatedGrid, config)
 
         return Level(config, grid, walls, start)
     }

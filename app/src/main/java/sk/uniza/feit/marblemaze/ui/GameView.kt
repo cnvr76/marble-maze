@@ -49,7 +49,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     ) {
         if (!::world.isInitialized) {
             val rows = (COLS * height / width.toFloat()).toInt()
-            val level = MazeGenerator.generate(MazeConfig(rows, COLS), Cell(0, rows - 1))
+            val level = MazeGenerator.generate(MazeConfig(rows, COLS, 0.5f),
+                Cell(0, rows - 1))
             world = World(level)
             frame = createBitmap(COLS * BIT, rows * BIT)
             frameCanvas = Canvas(frame)

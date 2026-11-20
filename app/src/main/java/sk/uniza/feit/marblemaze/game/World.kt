@@ -1,6 +1,5 @@
 package sk.uniza.feit.marblemaze.game
 
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 class World(val level: Level) {
