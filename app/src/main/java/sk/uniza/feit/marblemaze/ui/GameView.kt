@@ -71,7 +71,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         frameCanvas = Canvas(frame)
 
         if (world == null) {
-            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
+            config = MazeConfig(rows, COLS, 0.2f, 0.2f)
 //            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
             Thread {
                 val level = MazeGenerator.generate(config, Cell(0, rows - 1))
@@ -165,9 +165,13 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         Thread { loadLevel(MazeGenerator.generate(config, start)) }.start()
     }
 
+    fun configFor(depth: Int) = config.copy(
+        holeness = (0.2f + depth * 0.05f).coerceAtMost(0.7f)
+    )
+
     private fun prepareNextLevel(start: Cell) {
         nextLevel = null
-        Thread { nextLevel = MazeGenerator.generate(config, start) }.start()
+        Thread { nextLevel = MazeGenerator.generate(configFor(depth), start) }.start()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {}
