@@ -8,7 +8,7 @@
     <string name="action_stats">STATS</string>
 
     <!-- Game -->
-    <string name="game_depth_placeholder">DEPTH 00</string>
+    <string name="game_depth">DEPTH %02d</string>
     <string name="action_pause">II</string>
     <string name="game_placeholder">MAZE\nLOADING</string>
     <string name="action_debug_fall">F</string>

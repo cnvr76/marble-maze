@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import sk.uniza.feit.marblemaze.game.Vector2
 import sk.uniza.feit.marblemaze.game.World
@@ -25,6 +26,8 @@ import sk.uniza.feit.marblemaze.game.TrapHole
 class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback {
     @Volatile private var world: World? = null
     @Volatile private var nextLevel: Level? = null
+    var depth: Int = 0
+        private set
     private lateinit var config: MazeConfig
     private lateinit var frame: Bitmap
     private lateinit var frameCanvas: Canvas
@@ -32,7 +35,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     @Volatile private var running = false
     @Volatile var tilt = Vector2(0f, 0f)
     private var thread: Thread? = null
-    var onBallDeath: (() -> Unit)? = null
+    var onBallDeath: ((depth: Int) -> Unit)? = null
+    var onDepthChanged: ((depth: Int) -> Unit)? = null
 
     private val paintBall = Paint().apply {
         color = ContextCompat.getColor(context, R.color.fg); isAntiAlias = false
@@ -67,8 +71,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         frameCanvas = Canvas(frame)
 
         if (world == null) {
-            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
-//            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
+//            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
+            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
             Thread {
                 val level = MazeGenerator.generate(config, Cell(0, rows - 1))
                 loadLevel(level)
@@ -105,11 +109,14 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
             if (w.ball.state == Ball.State.FELL) {
                 val hole = w.ball.fallenHole
                 if (hole is ExitHole) {
+                    depth++
+                    post { onDepthChanged?.invoke(depth) }
+
                     val next: Level = nextLevel ?: MazeGenerator.generate(config, hole.cell)
                     loadLevel(next)
                 } else {
                     running = false
-                    post { onBallDeath?.invoke() }
+                    post { onBallDeath?.invoke(depth) }
                 }
             }
             val canvas = holder.lockCanvas() ?: continue

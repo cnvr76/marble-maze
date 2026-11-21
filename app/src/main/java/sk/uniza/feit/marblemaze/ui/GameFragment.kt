@@ -7,9 +7,15 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 import sk.uniza.feit.marblemaze.R
+import sk.uniza.feit.marblemaze.data.AppDatabase
+import sk.uniza.feit.marblemaze.data.Result
 import sk.uniza.feit.marblemaze.game.Vector2
 
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
@@ -23,19 +29,35 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
-        val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
-
         sensorManager = requireContext().getSystemService(SensorManager::class.java)
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gameView = view.findViewById(R.id.game_view)
+        val depthText = view.findViewById<TextView>(R.id.text_depth)
 
-        gameView.onBallDeath = {
-            findNavController().navigate(R.id.action_gameFragment_to_gameOverFragment)
+        gameView.onDepthChanged = { depth ->
+            depthText.text = getString(R.string.game_depth, depth)
         }
 
+        gameView.onBallDeath = { depth ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                // TODO (writing final score to db)
+                AppDatabase.get(requireContext()).resultDao()
+                    .insert(Result(levelsPassed = depth, playedAt = System.currentTimeMillis()))
+                findNavController().navigate(
+                    R.id.action_gameFragment_to_gameOverFragment,
+                    bundleOf(GameOverFragment.ARG_DEPTH to depth)
+                )
+            }
+        }
+
+        // --- DEBUG ---
+        val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
+        val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
         btnLose.setOnClickListener {
-            findNavController().navigate(R.id.action_gameFragment_to_gameOverFragment)
+            findNavController().navigate(
+                R.id.action_gameFragment_to_gameOverFragment,
+                bundleOf(GameOverFragment.ARG_DEPTH to gameView.depth)
+            )
         }
         btnRegen.setOnClickListener {
             gameView.regenerate()
