@@ -3,10 +3,6 @@ package sk.uniza.feit.marblemaze.game
 import kotlin.math.sqrt
 
 class World(val level: Level) {
-    enum class State { PLAYING, LOST, FINISHED }
-
-    var state = State.PLAYING
-        private set
     private val radius = 0.3f
     val ball = Ball(Vector2(level.start.x + 0.5f, level.start.y + 0.5f), radius)
 
