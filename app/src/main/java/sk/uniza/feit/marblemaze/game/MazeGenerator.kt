@@ -45,11 +45,11 @@ object MazeGenerator {
         while (iterator.hasNext()) {
             val wall = iterator.next()
 
-            val nearStart = start.center.dist(wall.center) < Hole.SAFE_DISTANCE
-            val nearOtherHole = holes.any { hole -> hole.center.dist(wall.center) < Hole.MIN_SELF_DISTANCE }
+            val nearStart = start.center.dist(wall.center) < TrapHole.SAFE_DISTANCE
+            val nearOtherHole = holes.any { hole -> hole.center.dist(wall.center) < TrapHole.MIN_SELF_DISTANCE }
 
             if (random.nextFloat() < config.holeness && !nearStart && !nearOtherHole) {
-                holes.add(Hole(wall.center.x, wall.center.y, 0.3f))
+                holes.add(TrapHole(wall.center, 0.3f))
                 iterator.remove()
             }
         }
@@ -60,6 +60,7 @@ object MazeGenerator {
         val grid = setup(config)
         var current: Cell? = grid[start.x + start.y * config.cols]
         val stack = java.util.ArrayDeque<Cell>()
+        var last: Cell = start
 
         stack.push(current); current?.visited = true
         while (stack.isNotEmpty()) {
@@ -71,13 +72,17 @@ object MazeGenerator {
                 current.removeWalls(neighbor)
                 neighbor.visited = true
                 stack.push(neighbor)
+                if (start.center.dist(neighbor.center) > ExitHole.MIN_PLAYER_DISTANCE)
+                    last = neighbor
             }
         }
 
         removeRandomWalls(grid, config)
         val walls = createWalls(grid, config)
         val holes = createHoles(walls, start, config)
+        val exit = ExitHole(last, 0.3f)
+        holes.add(exit)
 
-        return Level(config, grid, walls, holes, start)
+        return Level(config, grid, walls, holes, start, exit)
     }
 }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -17,11 +16,15 @@ import androidx.core.graphics.createBitmap
 import sk.uniza.feit.marblemaze.R
 import sk.uniza.feit.marblemaze.game.Ball
 import sk.uniza.feit.marblemaze.game.Cell
+import sk.uniza.feit.marblemaze.game.ExitHole
+import sk.uniza.feit.marblemaze.game.Level
 import sk.uniza.feit.marblemaze.game.MazeConfig
 import sk.uniza.feit.marblemaze.game.MazeGenerator
+import sk.uniza.feit.marblemaze.game.TrapHole
 
 class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback {
-    private lateinit var world: World
+    @Volatile private var world: World? = null
+    @Volatile private var nextLevel: Level? = null
     private lateinit var config: MazeConfig
     private lateinit var frame: Bitmap
     private lateinit var frameCanvas: Canvas
@@ -40,6 +43,9 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     private val holePaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.fg_dim); isAntiAlias = false
     }
+    private val winHolePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.accent); isAntiAlias = false
+    }
     private val bgColor = ContextCompat.getColor(context, R.color.bg)
     private val paintPixel = Paint().apply { isFilterBitmap = false; isAntiAlias = false }
 
@@ -56,15 +62,19 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         width: Int,
         height: Int
     ) {
-        if (!::world.isInitialized) {
-            val rows = (COLS * height / width.toFloat()).toInt()
+        val rows = (COLS * height / width.toFloat()).toInt()
+        frame = createBitmap(COLS * BIT, rows * BIT)
+        frameCanvas = Canvas(frame)
 
-            config = MazeConfig(rows, COLS, 0.6f, 0.4f)
-            val level = MazeGenerator.generate(config, Cell(0, rows - 1))
-            world = World(level)
-            frame = createBitmap(COLS * BIT, rows * BIT)
-            frameCanvas = Canvas(frame)
+        if (world == null) {
+            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
+//            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
+            Thread {
+                val level = MazeGenerator.generate(config, Cell(0, rows - 1))
+                loadLevel(level)
+            }.start()
         }
+
         placement.set(0f, 0f, width.toFloat(), height.toFloat())
 
         if (thread == null) {
@@ -82,47 +92,74 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     private fun loop() {
         var last = System.nanoTime()
         while (running) {
+            val w = world
+            if (w == null) {
+                Thread.sleep(10)
+                continue
+            }
             val now = System.nanoTime()
             val deltaTime = ((now - last) / 1_000_000_000f).coerceAtMost(0.05f)
             last = now
 
-            world.update(tilt, deltaTime)
-            if (world.ball.state == Ball.State.DEATH) {
-                running = false
-                post { onBallDeath?.invoke() }
+            w.update(tilt, deltaTime)
+            if (w.ball.state == Ball.State.FELL) {
+                val hole = w.ball.fallenHole
+                if (hole is ExitHole) {
+                    val next: Level = nextLevel ?: MazeGenerator.generate(config, hole.cell)
+                    loadLevel(next)
+                } else {
+                    running = false
+                    post { onBallDeath?.invoke() }
+                }
             }
             val canvas = holder.lockCanvas() ?: continue
 
-            try { render(canvas) }
+            try { render(canvas, w) }
             finally { holder.unlockCanvasAndPost(canvas) }
         }
     }
 
-    private fun render(canvas: Canvas) {
+    private fun loadLevel(level: Level) {
+        world = World(level)
+        prepareNextLevel(level.end.cell)
+    }
+
+    private fun render(canvas: Canvas, w: World) {
         frameCanvas.drawColor(bgColor)
 
-        for ((_, wleft, wright, wtop, wbottom) in world.level.walls) {
+        for ((_, wleft, wright, wtop, wbottom) in w.level.walls)
             frameCanvas.drawRect(wleft * BIT, wtop * BIT, wright * BIT, wbottom * BIT, wallPaint)
-            // frameCanvas.drawCircle(wleft * BIT, wtop * BIT, 1f, Paint().apply { color = Color.GREEN; isAntiAlias = false })
+
+        for (hole in w.level.holes) {
+            if (hole is ExitHole)
+                frameCanvas.drawCircle(
+                    hole.center.x * BIT,
+                    hole.center.y * BIT,
+                    hole.radius * BIT,
+                    winHolePaint
+                )
+            else
+                frameCanvas.drawCircle(hole.center.x * BIT, hole.center.y * BIT, hole.radius * BIT, holePaint)
         }
 
-        for (hole in world.level.holes) {
-            frameCanvas.drawCircle(hole.x * BIT, hole.y * BIT, hole.radius * BIT, holePaint)
-        }
-
-        val ball = world.ball
         frameCanvas.drawCircle(
-            ball.position.x * BIT,
-            ball.position.y * BIT,
-            ball.radius * ball.scale * BIT,
+            w.ball.position.x * BIT,
+            w.ball.position.y * BIT,
+            w.ball.radius * w.ball.scale * BIT,
             paintBall
         )
         canvas.drawColor(bgColor)
         canvas.drawBitmap(frame, null, placement, paintPixel)
     }
 
-    fun regenerate(start: Cell = world.level.start) {
-        world = World(MazeGenerator.generate(config, start))
+    fun regenerate() {
+        val start: Cell = world?.level?.start ?: return
+        Thread { loadLevel(MazeGenerator.generate(config, start)) }.start()
+    }
+
+    private fun prepareNextLevel(start: Cell) {
+        nextLevel = null
+        Thread { nextLevel = MazeGenerator.generate(config, start) }.start()
     }
 
     companion object {

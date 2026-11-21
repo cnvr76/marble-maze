@@ -5,5 +5,6 @@ data class Level(
     val cells: MutableList<Cell>,
     val walls: MutableList<Wall>,
     val holes: MutableList<Hole>,
-    val start: Cell
+    val start: Cell,
+    val end: ExitHole
 )
