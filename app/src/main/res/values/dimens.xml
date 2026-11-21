@@ -4,4 +4,5 @@
     <dimen name="frame_stroke">3dp</dimen>
     <dimen name="content_margin">16dp</dimen>
     <dimen name="item_padding">8dp</dimen>
+    <dimen name="stats_col_width">64dp</dimen>
 </resources>

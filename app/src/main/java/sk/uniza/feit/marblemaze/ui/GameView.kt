@@ -71,8 +71,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         frameCanvas = Canvas(frame)
 
         if (world == null) {
-//            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
-            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
+            config = MazeConfig(rows, COLS, 0.2f, 0.4f)
+//            config = MazeConfig(rows, COLS, 1f, 0f) // EMPTY TEST CONFIG
             Thread {
                 val level = MazeGenerator.generate(config, Cell(0, rows - 1))
                 loadLevel(level)

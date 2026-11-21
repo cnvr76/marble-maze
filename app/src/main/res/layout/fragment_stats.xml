@@ -42,7 +42,8 @@
     <TextView
         android:id="@+id/col_runs"
         style="@style/MM.Text.Dim"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/stats_col_width"
+        android:gravity="end"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/content_margin"
         android:text="@string/col_runs"
@@ -52,9 +53,9 @@
     <TextView
         android:id="@+id/col_best"
         style="@style/MM.Text.Dim"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/stats_col_width"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:gravity="end"
         android:text="@string/col_best"
         app:layout_constraintEnd_toStartOf="@id/col_runs"
         app:layout_constraintTop_toTopOf="@id/col_date" />
@@ -73,6 +74,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_stats"
+        tools:listitem="@layout/item_day_stats"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/content_margin"

@@ -16,10 +16,12 @@ import kotlinx.coroutines.launch
 import sk.uniza.feit.marblemaze.R
 import sk.uniza.feit.marblemaze.data.AppDatabase
 import sk.uniza.feit.marblemaze.data.Result
+import sk.uniza.feit.marblemaze.data.ResultDao
 import sk.uniza.feit.marblemaze.game.Vector2
 
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var sensorManager: SensorManager
+    private val dao: ResultDao by lazy { AppDatabase.get(requireContext()).resultDao() }
     private var accelerometer: Sensor? = null
     private lateinit var gameView: GameView
     private var calibrated = false
@@ -32,35 +34,31 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         sensorManager = requireContext().getSystemService(SensorManager::class.java)
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gameView = view.findViewById(R.id.game_view)
-        val depthText = view.findViewById<TextView>(R.id.text_depth)
 
+        val depthText = view.findViewById<TextView>(R.id.text_depth)
+        depthText.text = getString(R.string.game_depth, 0)
         gameView.onDepthChanged = { depth ->
             depthText.text = getString(R.string.game_depth, depth)
         }
 
-        gameView.onBallDeath = { depth ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                // TODO (writing final score to db)
-                AppDatabase.get(requireContext()).resultDao()
-                    .insert(Result(levelsPassed = depth, playedAt = System.currentTimeMillis()))
-                findNavController().navigate(
-                    R.id.action_gameFragment_to_gameOverFragment,
-                    bundleOf(GameOverFragment.ARG_DEPTH to depth)
-                )
-            }
-        }
+        gameView.onBallDeath = { depth -> finish(depth) }
 
         // --- DEBUG ---
         val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
         val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
-        btnLose.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_gameFragment_to_gameOverFragment,
-                bundleOf(GameOverFragment.ARG_DEPTH to gameView.depth)
-            )
-        }
+        btnLose.setOnClickListener { finish(gameView.depth) }
         btnRegen.setOnClickListener {
             gameView.regenerate()
+        }
+    }
+
+    private fun finish(depth: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            dao.insert(Result(levelsPassed = depth, playedAt = System.currentTimeMillis()))
+            findNavController().navigate(
+                R.id.action_gameFragment_to_gameOverFragment,
+                bundleOf(GameOverFragment.ARG_DEPTH to depth)
+            )
         }
     }
 
