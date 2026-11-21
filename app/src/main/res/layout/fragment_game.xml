@@ -15,6 +15,63 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/overlay_pause"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/frame_stroke"
+        android:background="@color/overlay_dim"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/panel_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="220dp"
+            android:background="@drawable/bg_panel"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="32dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/btn_resume"
+                style="@style/MM.Item.Primary"
+                android:text="@string/action_resume" />
+
+            <Button
+                android:id="@+id/btn_pause_menu"
+                style="@style/MM.Item"
+                android:layout_marginTop="4dp"
+                android:text="@string/action_menu" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/text_pause_title"
+            style="@style/MM.Text.BorderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_margin"
+            android:text="@string/pause_title"
+            app:layout_constraintBottom_toTopOf="@id/panel_pause"
+            app:layout_constraintStart_toStartOf="@id/panel_pause"
+            app:layout_constraintTop_toTopOf="@id/panel_pause" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <TextView
         android:id="@+id/text_depth"
         style="@style/MM.Text.BorderLabel"

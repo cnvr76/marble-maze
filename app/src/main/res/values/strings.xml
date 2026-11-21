@@ -10,6 +10,8 @@
     <!-- Game -->
     <string name="game_depth">DEPTH %02d</string>
     <string name="action_pause">II</string>
+    <string name="pause_title">PAUSED</string>
+    <string name="action_resume">> RESUME</string>
     <string name="game_placeholder">MAZE\nLOADING</string>
     <string name="action_debug_fall">F</string>
     <string name="action_debug_regenerate">R</string>

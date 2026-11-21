@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import sk.uniza.feit.marblemaze.game.Vector2
@@ -33,6 +34,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     private lateinit var frameCanvas: Canvas
     private val placement = RectF()
     @Volatile private var running = false
+    @Volatile var paused = false
     @Volatile var tilt = Vector2(0f, 0f)
     private var thread: Thread? = null
     var onBallDeath: ((depth: Int) -> Unit)? = null
@@ -56,8 +58,6 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     init {
         holder.addCallback(this)
     }
-
-    override fun surfaceCreated(holder: SurfaceHolder) {}
 
     @SuppressLint("ThreadConstraint")
     override fun surfaceChanged(
@@ -105,7 +105,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
             val deltaTime = ((now - last) / 1_000_000_000f).coerceAtMost(0.05f)
             last = now
 
-            w.update(tilt, deltaTime)
+            if (!paused) w.update(tilt, deltaTime)
+
             if (w.ball.state == Ball.State.FELL) {
                 val hole = w.ball.fallenHole
                 if (hole is ExitHole) {
@@ -168,6 +169,8 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         nextLevel = null
         Thread { nextLevel = MazeGenerator.generate(config, start) }.start()
     }
+
+    override fun surfaceCreated(holder: SurfaceHolder) {}
 
     companion object {
         const val BIT = 10

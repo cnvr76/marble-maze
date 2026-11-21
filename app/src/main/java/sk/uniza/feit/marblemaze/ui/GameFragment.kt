@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -18,9 +19,11 @@ import sk.uniza.feit.marblemaze.data.AppDatabase
 import sk.uniza.feit.marblemaze.data.Result
 import sk.uniza.feit.marblemaze.data.ResultDao
 import sk.uniza.feit.marblemaze.game.Vector2
+import androidx.core.view.isVisible
 
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var sensorManager: SensorManager
+    private lateinit var pauseOverlay: View
     private val dao: ResultDao by lazy { AppDatabase.get(requireContext()).resultDao() }
     private var accelerometer: Sensor? = null
     private lateinit var gameView: GameView
@@ -34,6 +37,18 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         sensorManager = requireContext().getSystemService(SensorManager::class.java)
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gameView = view.findViewById(R.id.game_view)
+        pauseOverlay = view.findViewById(R.id.overlay_pause)
+
+        val btnPause = view.findViewById<Button>(R.id.btn_pause)
+        btnPause.setOnClickListener {
+            if (pauseOverlay.isVisible) resumeGame() else pauseGame()
+        }
+
+        val btnPauseMenu = view.findViewById<Button>(R.id.btn_pause_menu)
+        btnPauseMenu.setOnClickListener { findNavController().popBackStack() }
+
+        val btnResume = view.findViewById<Button>(R.id.btn_resume)
+        btnResume.setOnClickListener { resumeGame() }
 
         val depthText = view.findViewById<TextView>(R.id.text_depth)
         depthText.text = getString(R.string.game_depth, 0)
@@ -42,6 +57,10 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         }
 
         gameView.onBallDeath = { depth -> finish(depth) }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (pauseOverlay.isVisible) resumeGame() else pauseGame()
+        }
 
         // --- DEBUG ---
         val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
@@ -71,6 +90,18 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        pauseGame()
+    }
+
+    fun pauseGame() {
+        gameView.paused = true
+        pauseOverlay.visibility = View.VISIBLE
+    }
+
+    fun resumeGame() {
+        gameView.paused = false
+        calibrated = false
+        pauseOverlay.visibility = View.INVISIBLE
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
