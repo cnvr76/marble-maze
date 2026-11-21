@@ -7,11 +7,19 @@ class World(val level: Level) {
     val ball = Ball(Vector2(level.start.x + 0.5f, level.start.y + 0.5f), radius)
 
     fun update(tilt: Vector2, deltaTime: Float) {
+        if (ball.state != Ball.State.ALIVE) {
+            ball.update(Vector2(0f, 0f), deltaTime)
+            return
+        }
+
         val step = deltaTime / SUBSTEPS
         repeat(SUBSTEPS) {
             ball.update(tilt * TILT_ACCELERATION, step)
             keepInsideBoard()
             wallCollisions()
+
+            val hole = checkHoleOverlap()
+            if (hole != null) ball.fallInto(hole)
         }
     }
 
@@ -31,6 +39,14 @@ class World(val level: Level) {
             ball.position = ball.position.copy(x = ball.radius)
             ball.velocity = ball.velocity.copy(x = -ball.velocity.x * Ball.BOUNCE)
         }
+    }
+
+    private fun checkHoleOverlap(): Hole? {
+        for (hole in level.holes) {
+            if (hole.center.dist(ball.position) < hole.radius)
+                return hole
+        }
+        return null
     }
 
     private fun wallCollisions() {

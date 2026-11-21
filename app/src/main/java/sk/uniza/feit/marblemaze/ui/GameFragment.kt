@@ -30,11 +30,15 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gameView = view.findViewById(R.id.game_view)
 
+        gameView.onBallDeath = {
+            findNavController().navigate(R.id.action_gameFragment_to_gameOverFragment)
+        }
+
         btnLose.setOnClickListener {
             findNavController().navigate(R.id.action_gameFragment_to_gameOverFragment)
         }
         btnRegen.setOnClickListener {
-
+            gameView.regenerate()
         }
     }
 

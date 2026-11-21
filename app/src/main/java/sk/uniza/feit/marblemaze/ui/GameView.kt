@@ -1,5 +1,6 @@
 package sk.uniza.feit.marblemaze.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -14,6 +15,7 @@ import sk.uniza.feit.marblemaze.game.Vector2
 import sk.uniza.feit.marblemaze.game.World
 import androidx.core.graphics.createBitmap
 import sk.uniza.feit.marblemaze.R
+import sk.uniza.feit.marblemaze.game.Ball
 import sk.uniza.feit.marblemaze.game.Cell
 import sk.uniza.feit.marblemaze.game.MazeConfig
 import sk.uniza.feit.marblemaze.game.MazeGenerator
@@ -27,6 +29,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     @Volatile private var running = false
     @Volatile var tilt = Vector2(0f, 0f)
     private var thread: Thread? = null
+    var onBallDeath: (() -> Unit)? = null
 
     private val paintBall = Paint().apply {
         color = ContextCompat.getColor(context, R.color.fg); isAntiAlias = false
@@ -46,6 +49,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
 
     override fun surfaceCreated(holder: SurfaceHolder) {}
 
+    @SuppressLint("ThreadConstraint")
     override fun surfaceChanged(
         holder: SurfaceHolder,
         format: Int,
@@ -83,6 +87,10 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
             last = now
 
             world.update(tilt, deltaTime)
+            if (world.ball.state == Ball.State.DEATH) {
+                running = false
+                post { onBallDeath?.invoke() }
+            }
             val canvas = holder.lockCanvas() ?: continue
 
             try { render(canvas) }
@@ -106,11 +114,15 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
         frameCanvas.drawCircle(
             ball.position.x * BIT,
             ball.position.y * BIT,
-            ball.radius * BIT,
+            ball.radius * ball.scale * BIT,
             paintBall
         )
         canvas.drawColor(bgColor)
         canvas.drawBitmap(frame, null, placement, paintPixel)
+    }
+
+    fun regenerate(start: Cell = world.level.start) {
+        world = World(MazeGenerator.generate(config, start))
     }
 
     companion object {
