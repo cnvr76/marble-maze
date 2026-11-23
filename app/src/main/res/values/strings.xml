@@ -8,7 +8,7 @@
     <string name="action_stats">STATS</string>
 
     <!-- Game -->
-    <string name="game_depth">DEPTH %02d</string>
+    <string name="game_depth">%sDEPTH %02d</string>
     <string name="action_pause">II</string>
     <string name="pause_title">PAUSED</string>
     <string name="action_resume">> RESUME</string>
@@ -19,6 +19,7 @@
     <!-- Game over -->
     <string name="over_label">GAME OVER</string>
     <string name="over_headline">YOU\nFELL.</string>
+    <string name="over_new_best">NEW BEST!</string>
     <string name="label_depth">DEPTH</string>
     <string name="label_best">BEST</string>
     <string name="value_placeholder">00</string>

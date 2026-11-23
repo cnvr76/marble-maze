@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import androidx.core.view.isVisible
 class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var pauseOverlay: View
+    private var currentBest = 0
     private val dao: ResultDao by lazy { AppDatabase.get(requireContext()).resultDao() }
     private var accelerometer: Sensor? = null
     private lateinit var gameView: GameView
@@ -39,6 +41,8 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         gameView = view.findViewById(R.id.game_view)
         pauseOverlay = view.findViewById(R.id.overlay_pause)
 
+        viewLifecycleOwner.lifecycleScope.launch { currentBest = dao.getBest() ?: 0 }
+
         val btnPause = view.findViewById<Button>(R.id.btn_pause)
         btnPause.setOnClickListener {
             if (pauseOverlay.isVisible) resumeGame() else pauseGame()
@@ -51,9 +55,14 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         btnResume.setOnClickListener { resumeGame() }
 
         val depthText = view.findViewById<TextView>(R.id.text_depth)
-        depthText.text = getString(R.string.game_depth, 0)
+        var newPrefix = ""
+        depthText.text = getString(R.string.game_depth, newPrefix, 0)
         gameView.onDepthChanged = { depth ->
-            depthText.text = getString(R.string.game_depth, depth)
+            if (depth > currentBest) {
+                depthText.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent))
+                newPrefix = "NEW "
+            }
+            depthText.text = getString(R.string.game_depth, newPrefix, depth)
         }
 
         gameView.onBallDeath = { depth -> finish(depth) }
@@ -63,20 +72,21 @@ class GameFragment : Fragment(R.layout.fragment_game), SensorEventListener {
         }
 
         // --- DEBUG ---
-        val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
-        val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
-        btnLose.setOnClickListener { finish(gameView.depth) }
-        btnRegen.setOnClickListener {
-            gameView.regenerate()
-        }
+//        val btnLose = view.findViewById<Button>(R.id.btn_debug_lose)
+//        val btnRegen = view.findViewById<Button>(R.id.btn_debug_regenerate)
+//        btnLose.setOnClickListener { finish(gameView.depth) }
+//        btnRegen.setOnClickListener {
+//            gameView.regenerate()
+//        }
     }
 
     private fun finish(depth: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
+            val prevBest = dao.getBest() ?: 0
             dao.insert(Result(levelsPassed = depth, playedAt = System.currentTimeMillis()))
             findNavController().navigate(
                 R.id.action_gameFragment_to_gameOverFragment,
-                bundleOf(GameOverFragment.ARG_DEPTH to depth)
+                bundleOf(GameOverFragment.ARG_DEPTH to depth, GameOverFragment.ARG_PREV_BEST to prevBest)
             )
         }
     }

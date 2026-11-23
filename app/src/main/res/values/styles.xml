@@ -42,10 +42,17 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <!-- Заголовок-«плашка»: инвертированный блок, как выделенное слово в текстовом квесте -->
     <style name="MM.Text.Title.Inverse">
         <item name="android:background">@color/fg</item>
         <item name="android:textColor">@color/bg</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <style name="MM.Text.Title.Inverse.Accent">
+        <item name="android:background">@color/accent</item>
+        <item name="android:textColor">@color/fg</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:paddingTop">6dp</item>
         <item name="android:paddingBottom">6dp</item>
     </style>

@@ -26,8 +26,12 @@ class GameOverFragment : Fragment(R.layout.fragment_game_over) {
 
         val textDepth = view.findViewById<TextView>(R.id.text_levels_passed)
         val textBest = view.findViewById<TextView>(R.id.text_best_score)
+        val textNewBest = view.findViewById<TextView>(R.id.text_new_best)
 
         val depth: Int = requireArguments().getInt(ARG_DEPTH)
+        val prevBest: Int = requireArguments().getInt(ARG_PREV_BEST)
+
+        textNewBest.visibility = if (depth > prevBest) View.VISIBLE else View.GONE
         textDepth.text = "%02d".format(depth)
         viewLifecycleOwner.lifecycleScope.launch {
             val best: Int = dao.getBest() ?: 0
@@ -49,5 +53,6 @@ class GameOverFragment : Fragment(R.layout.fragment_game_over) {
 
     companion object {
         const val ARG_DEPTH = "depth"
+        const val ARG_PREV_BEST = "prev_best"
     }
 }

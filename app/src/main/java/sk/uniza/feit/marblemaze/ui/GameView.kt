@@ -166,7 +166,7 @@ class GameView(context: Context, attrs: AttributeSet?) : SurfaceView(context, at
     }
 
     fun configFor(depth: Int) = config.copy(
-        holeness = (0.2f + depth * 0.05f).coerceAtMost(0.7f)
+        holeness = (0.2f + depth * 0.05f).coerceAtMost(0.8f)
     )
 
     private fun prepareNextLevel(start: Cell) {
