@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Одна тёмная тема для всего приложения -->
     <style name="Base.Theme.MarbleMaze" parent="Theme.Material3.Dark.NoActionBar" />
 
     <style name="Theme.MarbleMaze" parent="Base.Theme.MarbleMaze">
